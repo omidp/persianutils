@@ -83,7 +83,7 @@ public class PersianDateConverter
         DateHolder dh = pdc.convertJdnToGregorian(pdc.convertPersianToJdn(match.getM_currentYear(), match.getM_currentMonth(),
                 match.getM_currentDay()));
         cal.set(Calendar.YEAR, dh.getYear());
-        cal.set(Calendar.MONTH, dh.getMonth());
+        cal.set(Calendar.MONTH, dh.getMonth()-1);//zero-base index
         cal.set(Calendar.DATE, dh.getDay());
         if (patternDateTime.matcher(solarDateAsTimeStamp).matches())
         {
