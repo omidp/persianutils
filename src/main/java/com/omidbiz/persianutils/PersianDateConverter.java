@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class PersianDateConverter
 {
 
-    private final static Pattern patternDate = Pattern.compile("^(\\d{4})(-|/)(\\d{2})(-|/)(\\d{2})", Pattern.CASE_INSENSITIVE);
+    private final static Pattern patternDate = Pattern.compile("^(\\d{4})(-|/)(\\d{2})(-|/)(\\d{2})$", Pattern.CASE_INSENSITIVE);
     private final static Pattern patternDateTime = Pattern.compile("^(\\d{4})(-|/)(\\d{2})(-|/)(\\d{2})\\s(\\d{2}):(\\d{2})$",
             Pattern.CASE_INSENSITIVE);
 
@@ -87,7 +87,7 @@ public class PersianDateConverter
         cal.set(Calendar.DATE, dh.getDay());
         if (patternDateTime.matcher(solarDateAsTimeStamp).matches())
         {
-            cal.set(Calendar.HOUR, match.getM_currentHour());
+            cal.set(Calendar.HOUR_OF_DAY, match.getM_currentHour());
             cal.set(Calendar.MINUTE, match.getM_currentMin());
         }
         return cal.getTime();
