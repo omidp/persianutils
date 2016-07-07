@@ -29,6 +29,10 @@ public class PersianDateConverter
 
     private final static Pattern patternDate = Pattern.compile("^(\\d{4})(-|/)(\\d{2})(-|/)(\\d{2})$", Pattern.CASE_INSENSITIVE);
     private final static Pattern patternDateTime = Pattern.compile("^(\\d{4})(-|/)(\\d{2})(-|/)(\\d{2})\\s(\\d{2}):(\\d{2})$",
+            Pattern.CASE_INSENSITIVE);    
+    private final static Pattern patternDateTimeSec = Pattern.compile("^(\\d{4})(-|/)(\\d{2})(-|/)(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})$",
+            Pattern.CASE_INSENSITIVE);
+    private final static Pattern patternDateTimeSec2 = Pattern.compile("^(\\d{4})(-|/)(\\d{2})(-|/)(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)*",
             Pattern.CASE_INSENSITIVE);
 
     private String[] formats = { "yyyy/MM/dd", "yyyy/MM/dd HH:mm", "yyyy/MM/dd HH:mm:ss", "EEE MMM d HH:mm:ss z yyyy",
@@ -65,7 +69,9 @@ public class PersianDateConverter
         DateHolder dh = pdc.convertJdnToGregorian(pdc.convertPersianToJdn(match.getM_currentYear(), match.getM_currentMonth(),
                 match.getM_currentDay()));
         StringBuilder result = new StringBuilder(dh.toString());
-        if (patternDateTime.matcher(solarDateAsTimeStamp).matches())
+        if (patternDateTime.matcher(solarDateAsTimeStamp).matches()
+        		|| patternDateTimeSec.matcher(solarDateAsTimeStamp).matches()
+        		|| patternDateTimeSec2.matcher(solarDateAsTimeStamp).matches())
         {
             result.append(match.toString());
         }
@@ -85,10 +91,13 @@ public class PersianDateConverter
         cal.set(Calendar.YEAR, dh.getYear());
         cal.set(Calendar.MONTH, dh.getMonth()-1);//zero-base index
         cal.set(Calendar.DATE, dh.getDay());
-        if (patternDateTime.matcher(solarDateAsTimeStamp).matches())
+        if (patternDateTime.matcher(solarDateAsTimeStamp).matches()
+        		|| patternDateTimeSec.matcher(solarDateAsTimeStamp).matches()
+        		|| patternDateTimeSec2.matcher(solarDateAsTimeStamp).matches())
         {
             cal.set(Calendar.HOUR_OF_DAY, match.getM_currentHour());
             cal.set(Calendar.MINUTE, match.getM_currentMin());
+            cal.set(Calendar.SECOND, match.getM_currentSec());
         }
         return cal.getTime();
     }
@@ -104,7 +113,9 @@ public class PersianDateConverter
         DateHolder dh = pdc.convertJdnToPersian(pdc.convertGregorianToJdn(match.getM_currentYear(), match.getM_currentMonth(),
                 match.getM_currentDay()));
         StringBuilder result = new StringBuilder(dh.toString());
-        if (patternDateTime.matcher(gregorianDateAsTimeStamp).matches())
+        if (patternDateTime.matcher(gregorianDateAsTimeStamp).matches() 
+        		|| patternDateTimeSec.matcher(gregorianDateAsTimeStamp).matches()
+        		|| patternDateTimeSec2.matcher(gregorianDateAsTimeStamp).matches())
         {
             result.append(match.toString());
         }
@@ -136,13 +147,16 @@ public class PersianDateConverter
         int m_currentDay;
         int m_currentHour;
         int m_currentMin;
+        int m_currentSec;
         String delimiter = "/";
         StringBuilder sb = new StringBuilder();
 
         public MatcherHolder match(String solarDateAsTimeStamp)
         {
             Matcher timeMatcher = patternDateTime.matcher(solarDateAsTimeStamp);
+            Matcher timeSecMatcher = patternDateTimeSec.matcher(solarDateAsTimeStamp);
             Matcher dateMatcher = patternDate.matcher(solarDateAsTimeStamp);
+            Matcher timeSecMatcher2 = patternDateTimeSec2.matcher(solarDateAsTimeStamp);
             if (timeMatcher.matches())
             {
                 // yyyy/MM/dd HH:mm
@@ -152,6 +166,27 @@ public class PersianDateConverter
                 m_currentHour = Integer.parseInt(timeMatcher.group(6));
                 m_currentMin = Integer.parseInt(timeMatcher.group(7));
                 delimiter = timeMatcher.group(2);
+            }
+            else if(timeSecMatcher.matches())
+            {
+            	// yyyy/MM/dd HH:mm
+                m_currentYear = Integer.parseInt(timeSecMatcher.group(1));
+                m_currentMonth = Integer.parseInt(timeSecMatcher.group(3));
+                m_currentDay = Integer.parseInt(timeSecMatcher.group(5));
+                m_currentHour = Integer.parseInt(timeSecMatcher.group(6));
+                m_currentMin = Integer.parseInt(timeSecMatcher.group(7));
+                m_currentSec = Integer.parseInt(timeSecMatcher.group(8));
+                delimiter = timeSecMatcher.group(2);
+            }
+            else if(timeSecMatcher2.matches())
+            {
+            	m_currentYear = Integer.parseInt(timeSecMatcher2.group(1));
+                m_currentMonth = Integer.parseInt(timeSecMatcher2.group(3));
+                m_currentDay = Integer.parseInt(timeSecMatcher2.group(5));
+                m_currentHour = Integer.parseInt(timeSecMatcher2.group(6));
+                m_currentMin = Integer.parseInt(timeSecMatcher2.group(7));
+                m_currentSec = Integer.parseInt(timeSecMatcher2.group(8));
+                delimiter = timeSecMatcher2.group(2);
             }
             else
             {
@@ -191,11 +226,18 @@ public class PersianDateConverter
         {
             return m_currentMin;
         }
+        
+        public int getM_currentSec()
+        {
+            return m_currentSec;
+        }
 
         public String getDelimiter()
         {
             return delimiter;
         }
+        
+        
 
         @Override
         public String toString()
@@ -207,6 +249,10 @@ public class PersianDateConverter
             if (getM_currentMin() < 10)
                 sb.append("0");
             sb.append(getM_currentMin());
+            if(getM_currentSec() < 10 && getM_currentSec() > 0)
+            	sb.append("0").append(getM_currentSec());
+            if(getM_currentSec() > 10)
+            	sb.append(getM_currentSec());
             return sb.toString();
         }
 
@@ -401,5 +447,6 @@ public class PersianDateConverter
         }
 
     }
+    
 
 }
