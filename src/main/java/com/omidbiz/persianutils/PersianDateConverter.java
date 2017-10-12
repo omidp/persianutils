@@ -133,6 +133,34 @@ public class PersianDateConverter
             sdf.applyPattern("yyy/MM/dd");
         return GregorianToSolar(sdf.format(gregorianDateAsTimeStamp));
     }
+    
+    public int getSolarYear(int year, int month, int day)
+    {
+        String gDate = year+"/"+month+"/"+day;
+        String solarDate = GregorianToSolar(gDate);
+        return new MatcherHolder().match(solarDate).getM_currentYear();
+    }
+    
+    public int getSolarMonth(int year, int month, int day)
+    {
+        String gDate = year+"/"+month+"/"+day;
+        String solarDate = GregorianToSolar(gDate);
+        return new MatcherHolder().match(solarDate).getM_currentMonth();
+    }
+    
+    public int getSolarDay(int year, int month, int day)
+    {
+        String gDate = year+"/"+month+"/"+day;
+        String solarDate = GregorianToSolar(gDate);
+        return new MatcherHolder().match(solarDate).getM_currentDay();
+    }
+    
+    public int getGregorianYear(int year, int month, int day)
+    {
+        String solarDate = year+"/"+month+"/"+day;
+        String gDate = SolarToGregorian(solarDate);
+        return new MatcherHolder().match(gDate).getM_currentDay();
+    }
 
     /**
      * @author omidp
